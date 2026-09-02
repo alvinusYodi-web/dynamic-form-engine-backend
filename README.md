@@ -1,59 +1,599 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Dynamic Form Engine - Backend
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Backend API untuk Dynamic Form Engine yang dibangun menggunakan **Laravel** dan **MySQL**.
 
-## About Laravel
+Aplikasi ini membaca struktur form dari file JSON, menyimpannya ke database dalam bentuk relational data, kemudian menyediakan API yang digunakan oleh frontend untuk menampilkan form secara dinamis dan menyimpan jawaban pengguna.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Technology Stack
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+* PHP
+* Laravel
+* MySQL
+* Composer
+* REST API
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Development Environment
 
-## Learning Laravel
+Project ini dikembangkan dan diuji menggunakan:
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+* **Laragon**
+* PHP
+* MySQL
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Namun, project juga dapat dijalankan menggunakan **XAMPP** atau local PHP environment lainnya selama PHP, Composer, dan MySQL tersedia.
 
-## Laravel Sponsors
+> **Recommended:** Laragon atau XAMPP pada Windows.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+---
 
-### Premium Partners
+# Application Flow
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+Alur backend aplikasi:
 
-## Contributing
+```text
+form.json
+    │
+    ▼
+FormImporter
+    │
+    ▼
+MySQL Database
+    │
+    ▼
+Laravel API
+    │
+    ├── GET  /api/form
+    │
+    └── POST /api/form
+            │
+            ▼
+      Form Submission
+            │
+            ▼
+        MySQL Database
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 1. Form Definition
 
-## Code of Conduct
+Struktur form berasal dari:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```text
+storage/app/feeds/form.json
+```
 
-## Security Vulnerabilities
+File JSON berisi informasi seperti:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+* Section
+* Payload / field
+* Field type
+* Description
+* Options
 
-## License
+Contoh jenis field yang didukung:
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+* Text
+* Long Text
+* Radio Button
+* Checkbox
+
+### 2. Import JSON
+
+JSON tidak langsung digunakan oleh frontend.
+
+File JSON terlebih dahulu diproses oleh `FormImporter`.
+
+Import dilakukan menggunakan Artisan command:
+
+```bash
+php artisan form:import
+```
+
+Command tersebut akan membaca:
+
+```text
+storage/app/feeds/form.json
+```
+
+kemudian menyimpan struktur form ke database.
+
+### 3. Database
+
+Struktur form disimpan secara relational ke beberapa tabel:
+
+```text
+sections
+    │
+    └── payloads
+            │
+            └── options
+```
+
+Sedangkan jawaban pengguna disimpan melalui:
+
+```text
+risk_events
+    │
+    └── answers
+            │
+            └── answer_options
+```
+
+Database juga menggunakan index pada beberapa foreign key untuk membantu performa query.
+
+### 4. API
+
+Setelah form berhasil diimport, Laravel menyediakan API:
+
+```http
+GET /api/form
+```
+
+Digunakan untuk mengambil struktur form dari database.
+
+Untuk menyimpan jawaban:
+
+```http
+POST /api/form
+```
+
+Jawaban pengguna kemudian disimpan ke database.
+
+---
+
+# Requirements
+
+Pastikan komputer memiliki:
+
+* PHP 8.x
+* Composer
+* MySQL
+* Git
+
+## Recommended Environment
+
+Project ini dikembangkan menggunakan **Laragon**.
+
+Laragon direkomendasikan karena menyediakan environment PHP dan MySQL yang mudah digunakan pada Windows.
+
+## Alternative Environment
+
+Project juga dapat dijalankan menggunakan **XAMPP**.
+
+Jika menggunakan XAMPP, pastikan:
+
+* Apache berjalan
+* MySQL berjalan
+* PHP tersedia
+* Composer tersedia
+
+Lokasi folder project dapat berbeda tergantung environment yang digunakan.
+
+**Tidak ada path tertentu yang diwajibkan oleh aplikasi.**
+
+Contoh Laragon:
+
+```text
+C:\laragon\www\dynamic-form-engine-backend
+```
+
+Contoh XAMPP:
+
+```text
+C:\xampp\htdocs\dynamic-form-engine-backend
+```
+
+---
+
+# Installation
+
+## 1. Clone Repository
+
+Clone repository:
+
+```bash
+git clone <BACKEND_REPOSITORY_URL>
+```
+
+Masuk ke project:
+
+```bash
+cd dynamic-form-engine-backend
+```
+
+---
+
+## 2. Install Dependencies
+
+Install dependency Laravel:
+
+```bash
+composer install
+```
+
+---
+
+## 3. Environment Configuration
+
+Copy:
+
+```text
+.env.example
+```
+
+menjadi:
+
+```text
+.env
+```
+
+Jika menggunakan terminal yang mendukung `cp`:
+
+```bash
+cp .env.example .env
+```
+
+Pada Windows, file tersebut juga dapat disalin secara manual.
+
+Kemudian sesuaikan konfigurasi database pada `.env`:
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=dynamic_form_engine
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+Sesuaikan username dan password dengan konfigurasi MySQL pada komputer masing-masing.
+
+---
+
+# Database Setup
+
+Buat database MySQL:
+
+```text
+dynamic_form_engine
+```
+
+Database dapat dibuat melalui:
+
+* Laragon
+* phpMyAdmin
+* MySQL Workbench
+* MySQL client
+* Database management tool lainnya
+
+Kemudian jalankan migration:
+
+```bash
+php artisan migrate
+```
+
+Migration akan membuat tabel yang dibutuhkan aplikasi.
+
+---
+
+# Import Form Definition
+
+Setelah migration selesai, import struktur form dari JSON:
+
+```bash
+php artisan form:import
+```
+
+Command tersebut akan membaca:
+
+```text
+storage/app/feeds/form.json
+```
+
+dan memasukkan data form ke database.
+
+Jika berhasil:
+
+```text
+Form berhasil diimport.
+```
+
+---
+
+# Running the Backend
+
+Backend dapat dijalankan menggunakan Laravel development server:
+
+```bash
+php artisan serve
+```
+
+Default URL:
+
+```text
+http://127.0.0.1:8000
+```
+
+API tersedia di:
+
+```text
+http://127.0.0.1:8000/api/form
+```
+
+## Using Laragon
+
+Jika menggunakan Laragon, project dapat ditempatkan pada:
+
+```text
+C:\laragon\www\
+```
+
+Laragon dapat menyediakan local virtual host untuk project Laravel.
+
+Contoh:
+
+```text
+http://dynamic-form-engine-backend.test
+```
+
+URL tersebut bergantung pada konfigurasi Laragon di komputer pengguna.
+
+## Using XAMPP
+
+Jika menggunakan XAMPP, project dapat ditempatkan pada:
+
+```text
+C:\xampp\htdocs\
+```
+
+Backend juga dapat dijalankan menggunakan:
+
+```bash
+php artisan serve
+```
+
+sehingga tidak bergantung pada konfigurasi virtual host Apache.
+
+---
+
+# API Documentation
+
+## Get Form
+
+### Endpoint
+
+```http
+GET /api/form
+```
+
+### Description
+
+Mengambil seluruh struktur form yang sudah diimport ke database.
+
+Response berisi:
+
+```text
+Section
+ └── Payload
+      └── Options
+```
+
+Endpoint ini digunakan oleh frontend untuk melakukan dynamic form rendering.
+
+---
+
+## Submit Form
+
+### Endpoint
+
+```http
+POST /api/form
+```
+
+### Request
+
+```json
+{
+  "answers": [
+    {
+      "payload_id": "1617779435-k7j8-6aai-ma0ye5989",
+      "value": "Kesalahan prosedur dalam proses operasional."
+    }
+  ]
+}
+```
+
+Untuk radio button:
+
+```json
+{
+  "answers": [
+    {
+      "payload_id": "1617779234-f0oy-phln-ppl0u1qx5",
+      "option_ids": [
+        "1617779275-lt0k-zexz-uol8cts7s"
+      ]
+    }
+  ]
+}
+```
+
+Untuk checkbox:
+
+```json
+{
+  "answers": [
+    {
+      "payload_id": "1617779535-70rw-phgu-z775zzpti",
+      "option_ids": [
+        "1617779587-p21t-cv59-eoh4ses9b",
+        "1617779627-v64i-uu1g-oo8n3j93v"
+      ]
+    }
+  ]
+}
+```
+
+---
+
+# Database Design
+
+Database menggunakan relational structure.
+
+### Form Definition
+
+```text
+sections
+    │
+    └── payloads
+            │
+            └── options
+```
+
+### Form Answers
+
+```text
+risk_events
+    │
+    └── answers
+            │
+            └── answer_options
+                    │
+                    └── options
+```
+
+### Main Tables
+
+| Table            | Purpose                          |
+| ---------------- | -------------------------------- |
+| `sections`       | Menyimpan section form           |
+| `payloads`       | Menyimpan field form             |
+| `options`        | Menyimpan pilihan field          |
+| `risk_events`    | Menyimpan satu submission form   |
+| `answers`        | Menyimpan jawaban field          |
+| `answer_options` | Menyimpan pilihan radio/checkbox |
+
+---
+
+# Reset Database
+
+Untuk development/testing, database dapat di-reset menggunakan:
+
+```bash
+php artisan migrate:fresh
+```
+
+Kemudian import kembali form:
+
+```bash
+php artisan form:import
+```
+
+Atau langsung:
+
+```bash
+php artisan migrate:fresh
+php artisan form:import
+```
+
+> **Warning:** `migrate:fresh` akan menghapus seluruh tabel dan data pada database yang digunakan. Jangan gunakan pada production database.
+
+---
+
+# Project Structure
+
+```text
+dynamic-form-engine-backend/
+│
+├── app/
+│   ├── Console/
+│   │   └── Commands/
+│   │       └── ImportForm.php
+│   │
+│   ├── Http/
+│   │   ├── Controllers/
+│   │   │   └── FormController.php
+│   │   └── Requests/
+│   │       └── StoreFormRequest.php
+│   │
+│   ├── Models/
+│   │   ├── Answer.php
+│   │   ├── Option.php
+│   │   ├── Payload.php
+│   │   ├── RiskEvent.php
+│   │   └── Section.php
+│   │
+│   └── Services/
+│       └── FormImporter.php
+│
+├── database/
+│   └── migrations/
+│
+├── routes/
+│   └── api.php
+│
+├── storage/
+│   └── app/
+│       └── feeds/
+│           └── form.json
+│
+├── .env.example
+├── artisan
+├── composer.json
+└── README.md
+```
+
+---
+
+# Form Import Command
+
+Form definition dapat diperbarui dengan mengganti file:
+
+```text
+storage/app/feeds/form.json
+```
+
+kemudian menjalankan:
+
+```bash
+php artisan form:import
+```
+
+Importer menggunakan `updateOrCreate`, sehingga data form dapat diperbarui berdasarkan ID yang terdapat pada JSON.
+
+---
+
+# Development Notes
+
+Project ini menggunakan pendekatan dynamic form.
+
+Backend tidak menyimpan setiap field form sebagai kolom database khusus.
+
+Sebagai contoh, field baru seperti:
+
+```text
+Nama Pelapor
+```
+
+dapat ditambahkan ke JSON dan diimport ke database tanpa perlu membuat migration baru untuk field tersebut.
+
+Frontend kemudian dapat mengambil field tersebut melalui API dan melakukan rendering berdasarkan `type`.
+
+Pendekatan ini memungkinkan struktur form berubah tanpa mengubah struktur database setiap kali terdapat field baru.
+
+---
+
+# Related Repository
+
+Frontend repository:
+
+```text
+<FRONTEND_REPOSITORY_URL>
+```
+
+Frontend menggunakan API yang disediakan oleh backend ini.
+
+---
+
+# License
+
+This project was developed as part of a Software Engineer Test.
