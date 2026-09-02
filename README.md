@@ -191,7 +191,7 @@ C:\xampp\htdocs\dynamic-form-engine-backend
 Clone repository:
 
 ```bash
-git clone <BACKEND_REPOSITORY_URL>
+git clone https://github.com/alvinusYodi-web/dynamic-form-engine-backend.git
 ```
 
 Masuk ke project:
@@ -240,7 +240,7 @@ Kemudian sesuaikan konfigurasi database pada `.env`:
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
-DB_DATABASE=dynamic_form_engine
+DB_DATABASE=dynamic_form_engine_db
 DB_USERNAME=root
 DB_PASSWORD=
 ```
